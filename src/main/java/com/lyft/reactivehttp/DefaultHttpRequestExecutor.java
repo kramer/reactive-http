@@ -6,9 +6,7 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,6 +26,7 @@ public class DefaultHttpRequestExecutor implements RequestExecutor {
             final String url,
             final Map<String, String> headers,
             final HttpContent httpContent,
+            final HttpErrorHandler errorHandler,
             final Class<T> responseClass) {
         return Observable.create(new Observable.OnSubscribeFunc<T>() {
             @Override
@@ -55,13 +54,25 @@ public class DefaultHttpRequestExecutor implements RequestExecutor {
                         out.close();
                     }
 
-                    in = connection.getInputStream();
-                    InputStreamReader isr = new InputStreamReader(in);
+                    HttpErrorHandler httpErrorHandler = errorHandler == null ?
+                            new DefaultErrorHandler() : errorHandler;
 
-                    T result = gson.fromJson(isr, responseClass);
+                    if (connection.getResponseCode() == 200) {
+                        in = connection.getInputStream();
+                        InputStreamReader isr = new InputStreamReader(in);
 
-                    observer.onNext(result);
-                    observer.onCompleted();
+                        T result = gson.fromJson(isr, responseClass);
+
+                        observer.onNext(result);
+                        observer.onCompleted();
+                    } else {
+                        in = connection.getErrorStream();
+                        InputStreamReader isr = new InputStreamReader(in);
+
+                        Exception error = httpErrorHandler.getError(connection.getResponseCode(), getStringFromInputStreamReader(isr));
+
+                        throw (error);
+                    }
 
                 } catch (Exception e) {
                     observer.onError(e);
@@ -92,5 +103,18 @@ public class DefaultHttpRequestExecutor implements RequestExecutor {
                 };
             }
         });
+    }
+
+    private String getStringFromInputStreamReader(InputStreamReader isr) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(isr);
+
+        StringBuilder result = new StringBuilder();
+
+        String line;
+
+        while ((line = bufferedReader.readLine()) != null) {
+            result.append(line);
+        }
+        return result.toString();
     }
 }

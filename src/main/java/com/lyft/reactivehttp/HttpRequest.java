@@ -21,10 +21,11 @@ public class HttpRequest {
     final Map<String, String> queryString = new LinkedHashMap<String, String>();
     final Map<String, String> headers = new LinkedHashMap<String, String>();
 
-    String url;
+    private String url;
     private String method;
     private HttpContent httpContent;
     private RequestExecutor requestExecutor;
+    private HttpErrorHandler errorHandler;
 
     public HttpRequest(RequestExecutor requestExecutor) {
         this.requestExecutor = requestExecutor;
@@ -32,6 +33,31 @@ public class HttpRequest {
 
     public HttpRequest get(String url, Object... params) {
         request(METHOD_GET, url, params);
+        return this;
+    }
+
+    public HttpRequest post(String url, Object... params) {
+        request(METHOD_POST, url, params);
+        return this;
+    }
+
+    public HttpRequest put(String url, Object... params) {
+        request(METHOD_PUT, url, params);
+        return this;
+    }
+
+    public HttpRequest head(String url, Object... params) {
+        request(METHOD_HEAD, url, params);
+        return this;
+    }
+
+    public HttpRequest patch(String url, Object... params) {
+        request(METHOD_PATCH, url, params);
+        return this;
+    }
+
+    public HttpRequest options(String url, Object... params) {
+        request(METHOD_OPTIONS, url, params);
         return this;
     }
 
@@ -61,8 +87,13 @@ public class HttpRequest {
         return this;
     }
 
+    public HttpRequest errorHandler(HttpErrorHandler errorHandler) {
+        this.errorHandler = errorHandler;
+        return this;
+    }
+
     public <T> Observable<T> end(Class<T> responseClass) {
-        return requestExecutor.execute(method, getUrlWithQueryString(), headers, httpContent, responseClass);
+        return requestExecutor.execute(method, getUrlWithQueryString(), headers, httpContent, errorHandler, responseClass);
     }
 
 
