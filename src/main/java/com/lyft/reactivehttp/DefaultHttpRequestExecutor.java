@@ -45,10 +45,18 @@ public class DefaultHttpRequestExecutor implements RequestExecutor {
 
                     if (httpContent instanceof JsonHttpContent) {
                         JsonHttpContent jsonHttpContent = (JsonHttpContent) httpContent;
+                        connection.addRequestProperty("Content-type", jsonHttpContent.mimeType());
+
                         String serializedData = gson.toJson(jsonHttpContent.getData());
+                        byte[] serializedBytes = serializedData.getBytes(Charset.forName("UTF-8"));
+
+                        long contentLength = serializedBytes.length;
+                        connection.setFixedLengthStreamingMode((int) contentLength);
+                        connection.addRequestProperty("Content-Length", String.valueOf(contentLength));
 
                         out = connection.getOutputStream();
-                        out.write(serializedData.getBytes(Charset.forName("UTF-8")));
+
+                        out.write(serializedBytes);
                         out.close();
                     }
 

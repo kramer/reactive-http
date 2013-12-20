@@ -81,8 +81,8 @@ public class HttpRequest {
         return this;
     }
 
-    public HttpRequest file(File file) {
-        httpContent = new FileContent(file);
+    public HttpRequest file(String contentType, File file) {
+        httpContent = new FileContent(contentType, file);
         return this;
     }
 

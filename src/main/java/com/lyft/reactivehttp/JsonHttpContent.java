@@ -13,4 +13,9 @@ class JsonHttpContent implements HttpContent {
     public Object getData() {
         return data;
     }
+
+    @Override
+    public String mimeType() {
+        return "application/json; charset=UTF-8";
+    }
 }
