@@ -8,7 +8,6 @@ import rx.Subscription;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Map;
@@ -26,7 +25,6 @@ public class DefaultHttpRequestExecutor implements RequestExecutor {
             final String url,
             final Map<String, String> headers,
             final HttpContent httpContent,
-            final HttpErrorHandler errorHandler,
             final Class<T> responseClass) {
         return Observable.create(new Observable.OnSubscribeFunc<T>() {
             @Override
@@ -54,10 +52,9 @@ public class DefaultHttpRequestExecutor implements RequestExecutor {
                         out.close();
                     }
 
-                    HttpErrorHandler httpErrorHandler = errorHandler == null ?
-                            new DefaultErrorHandler() : errorHandler;
+                    int statusCode = connection.getResponseCode();
 
-                    if (connection.getResponseCode() == 200) {
+                    if (statusCode >= 200 && statusCode < 300) {
                         in = connection.getInputStream();
                         InputStreamReader isr = new InputStreamReader(in);
 
@@ -69,7 +66,7 @@ public class DefaultHttpRequestExecutor implements RequestExecutor {
                         in = connection.getErrorStream();
                         InputStreamReader isr = new InputStreamReader(in);
 
-                        Exception error = httpErrorHandler.getError(connection.getResponseCode(), getStringFromInputStreamReader(isr));
+                        Exception error = new HttpResponseException(connection.getResponseCode(), getStringFromInputStreamReader(isr), gson);
 
                         throw (error);
                     }

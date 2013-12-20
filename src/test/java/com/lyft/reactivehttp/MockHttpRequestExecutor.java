@@ -14,7 +14,6 @@ public class MockHttpRequestExecutor implements RequestExecutor {
     String url;
     Map<String, String> headers;
     HttpContent httpContent;
-    private HttpErrorHandler errorHandler;
     Class<?> responseClass;
 
     @Override
@@ -23,13 +22,11 @@ public class MockHttpRequestExecutor implements RequestExecutor {
             String url,
             Map<String, String> headers,
             HttpContent httpContent,
-            HttpErrorHandler errorHandler,
             Class<T> responseClass) {
         this.method = method;
         this.url = url;
         this.headers = headers;
         this.httpContent = httpContent;
-        this.errorHandler = errorHandler;
         this.responseClass = responseClass;
 
 

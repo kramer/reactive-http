@@ -1,6 +1,5 @@
 package com.lyft.reactivehttp;
 
-import com.google.gson.Gson;
 import org.junit.Test;
 import rx.util.functions.Action1;
 
@@ -62,41 +61,17 @@ public class SampleTest {
                 );
     }
 
-    static class GithubApiException extends RuntimeException {
-
-        private int statusCode;
-        private GithubApiError error;
-
-        public GithubApiException(int statusCode, GithubApiError error) {
-
-            this.statusCode = statusCode;
-            this.error = error;
-        }
-
-        public GithubApiError getError() {
-            return error;
-        }
-    }
 
     static class GithubApiError {
         String message;
     }
 
-    static class GithubApiErrorHandler implements HttpErrorHandler {
-        Gson gson = new Gson();
-
-        @Override
-        public Exception getError(int statusCode, String error) {
-            return new GithubApiException(statusCode, gson.fromJson(error, GithubApiError.class));
-        }
-    }
 
     @Test
     public void failAuthroizeOnGithub() {
         client.create()
                 .get("https://api.github.com")
                 .set("Authorization", "foo")
-                .errorHandler(new GithubApiErrorHandler())
                 .end(Void.class)
                 .subscribe(new Action1<Void>() {
                                @Override
@@ -106,9 +81,9 @@ public class SampleTest {
                            }, new Action1<Throwable>() {
                                @Override
                                public void call(Throwable throwable) {
-                                   if (throwable instanceof GithubApiException) {
-                                       GithubApiException get = (GithubApiException) throwable;
-                                       System.out.print(get.getError().message);
+                                   if (throwable instanceof HttpResponseException) {
+                                       HttpResponseException get = (HttpResponseException) throwable;
+                                       System.out.print(get.getError(GithubApiError.class).message);
                                    }
                                    throwable.printStackTrace();
                                }

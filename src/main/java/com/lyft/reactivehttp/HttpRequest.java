@@ -25,7 +25,6 @@ public class HttpRequest {
     private String method;
     private HttpContent httpContent;
     private RequestExecutor requestExecutor;
-    private HttpErrorHandler errorHandler;
 
     public HttpRequest(RequestExecutor requestExecutor) {
         this.requestExecutor = requestExecutor;
@@ -87,13 +86,9 @@ public class HttpRequest {
         return this;
     }
 
-    public HttpRequest errorHandler(HttpErrorHandler errorHandler) {
-        this.errorHandler = errorHandler;
-        return this;
-    }
 
     public <T> Observable<T> end(Class<T> responseClass) {
-        return requestExecutor.execute(method, getUrlWithQueryString(), headers, httpContent, errorHandler, responseClass);
+        return requestExecutor.execute(method, getUrlWithQueryString(), headers, httpContent, responseClass);
     }
 
 

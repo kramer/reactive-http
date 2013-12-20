@@ -13,6 +13,5 @@ public interface RequestExecutor {
             String url,
             Map<String, String> headers,
             HttpContent httpContent,
-            HttpErrorHandler errorHandler,
             Class<T> responseClass);
 }
