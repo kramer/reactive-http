@@ -1,14 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.lexer</groupId>
-    <artifactId>reactive-http</artifactId>
-    <url>https://github.com/lexer/reactive-http</url>
-    <version>1.0</version>
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
+    <groupId>com.lyft.reactivehttp</groupId>
+    <artifactId>reactivehttp</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
+
+    <name>Reactive Http</name>
+    <description>Reactive http client for Android.</description>
+    <url>https://github.com/lyft/reactive-http</url>
+    <inceptionYear>2013</inceptionYear>
+
+    <scm>
+        <url>http://github.com/lyft/reactive-http/</url>
+        <connection>scm:git:git://github.com/lyft/reactive-http.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/lyft/reactive-http.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>http://github.com/lyft/reactive-http/issues</url>
+    </issueManagement>
+
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>zakharov</id>
+            <name>Alexey Zakharov</name>
+            <email>alexey.v.zaharov@gmail.com</email>
+            <url>http://linkd.in/1ciAjms</url>
+            <organization>Lyft</organization>
+            <organizationUrl>http://lyft.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-8</timezone>
+        </developer>
+    </developers>
+
 
     <dependencies>
         <dependency>
