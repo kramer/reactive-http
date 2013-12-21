@@ -9,7 +9,7 @@
         <version>7</version>
     </parent>
 
-    <groupId>com.lyft.reactivehttp</groupId>
+    <groupId>com.lyft</groupId>
     <artifactId>reactivehttp</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
