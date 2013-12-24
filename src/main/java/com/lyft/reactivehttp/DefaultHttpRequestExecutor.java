@@ -4,18 +4,24 @@ import com.google.gson.Gson;
 import com.squareup.okhttp.OkHttpClient;
 import rx.Observable;
 import rx.Observer;
+import rx.Scheduler;
 import rx.Subscription;
+import rx.concurrency.Schedulers;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Created by zakharov on 12/15/13.
  */
 public class DefaultHttpRequestExecutor implements RequestExecutor {
+    public static final Scheduler DEFAULT_SCHEDULER = Schedulers.executor(Executors.newFixedThreadPool(4));
+
     Gson gson = new Gson();
     OkHttpClient okHttpClient = new OkHttpClient();
 
@@ -26,7 +32,7 @@ public class DefaultHttpRequestExecutor implements RequestExecutor {
             final Map<String, String> headers,
             final HttpContent httpContent,
             final Class<T> responseClass) {
-        return Observable.create(new Observable.OnSubscribeFunc<T>() {
+        Observable<T> observable = Observable.create(new Observable.OnSubscribeFunc<T>() {
             @Override
             public Subscription onSubscribe(Observer<? super T> observer) {
                 OutputStream out = null;
@@ -108,6 +114,9 @@ public class DefaultHttpRequestExecutor implements RequestExecutor {
                 };
             }
         });
+
+        return observable
+                .subscribeOn(DEFAULT_SCHEDULER);
     }
 
     private String getStringFromInputStreamReader(InputStreamReader isr) throws IOException {
