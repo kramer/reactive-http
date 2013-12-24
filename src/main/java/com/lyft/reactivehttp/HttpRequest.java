@@ -3,6 +3,8 @@ package com.lyft.reactivehttp;
 import rx.Observable;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -102,9 +104,10 @@ public class HttpRequest {
             int i = 0;
 
             for (Map.Entry<String, String> entry : queryString.entrySet()) {
-                queryStringStr.append(entry.getKey());
+                queryStringStr.append(encodeForUrl(entry.getKey()));
                 queryStringStr.append("=");
-                queryStringStr.append(entry.getValue());
+
+                queryStringStr.append(encodeForUrl(entry.getValue()));
 
                 if (i < queryStringSize - 1) {
                     queryStringStr.append("&");
@@ -114,6 +117,22 @@ public class HttpRequest {
             }
         }
         return queryStringStr.insert(0, url).toString();
+    }
+
+    private String encodeForUrl(String value) {
+        String encodedValue = "";
+
+        try {
+            encodedValue = URLEncoder.encode(String.valueOf(value), "UTF-8");
+            // URLEncoder encodes for use as a query parameter. Path encoding uses %20 to
+            // encode spaces rather than +. Query encoding difference specified in HTML spec.
+            // Any remaining plus signs represent spaces as already URLEncoded.
+            encodedValue = encodedValue.replace("+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            // TODO raise custom exception here
+        }
+
+        return value;
     }
 
 
