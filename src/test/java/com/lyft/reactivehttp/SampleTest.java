@@ -21,6 +21,19 @@ public class SampleTest {
 
     public static final String IMGUR_CLIENT_ID = "146bbf89f891032";
 
+    static class ConsoleLog implements HttpLog {
+
+        @Override
+        public void log(String message) {
+            for (int i = 0, len = message.length(); i < len; i += LOG_CHUNK_SIZE) {
+                int end = Math.min(len, i + LOG_CHUNK_SIZE);
+                System.out.println(message.substring(i, end));
+            }
+        }
+    }
+
+    private static final int LOG_CHUNK_SIZE = 4000;
+
     public static class Contributor {
         String login;
         int contributions;
@@ -39,21 +52,56 @@ public class SampleTest {
 
     private final Gson gson = new Gson();
 
-    ReactiveHttpClient client = new ReactiveHttpClient(new OkHttpClient(), gson, Schedulers.currentThread());
+    ReactiveHttpClient client = new ReactiveHttpClient(new OkHttpClient(), gson, Schedulers.currentThread(), new ConsoleLog(), true);
 
     @Test
-    public void getRepoContributors() {
+    public void getRepoContributors() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+
         client.create()
                 .get("https://api.github.com/repos/%s/%s/contributors", "lyft", "reactive-http")
+                .end(Contributors.class)
+                .finallyDo(new Action0() {
+                    @Override
+                    public void call() {
+                        latch.countDown();
+                    }
+                })
+                .subscribe(new Action1<Contributors>() {
+                    @Override
+                    public void call(Contributors contributors) {
+                        for (Contributor contributor : contributors) {
+
+                        }
+                    }
+                });
+
+        latch.await();
+    }
+
+    @Test
+    public void postRepoContributors() {
+        Contributor data = new Contributor();
+        data.login = "sdfsdaf";
+        int contributions = 232;
+
+        client.create()
+                .post("https://api.github.com/repos/%s/%s/contributors", "lyft", "reactive-http")
+                .data(data)
                 .end(Contributors.class)
                 .subscribe(new Action1<Contributors>() {
                     @Override
                     public void call(Contributors contributors) {
                         for (Contributor contributor : contributors) {
-                            System.out.println(contributor.login);
+
                         }
                     }
-                });
+                }, new Action1<Throwable>() {
+                               @Override
+                               public void call(Throwable throwable) {
+
+                               }
+                           });
     }
 
     @Test
@@ -69,7 +117,7 @@ public class SampleTest {
                            }, new Action1<Throwable>() {
                                @Override
                                public void call(Throwable throwable) {
-                                   throwable.printStackTrace();
+
                                }
                            }
                 );
@@ -95,11 +143,7 @@ public class SampleTest {
                            }, new Action1<Throwable>() {
                                @Override
                                public void call(Throwable throwable) {
-                                   if (throwable instanceof HttpResponseException) {
-                                       HttpResponseException hre = (HttpResponseException) throwable;
-                                       System.out.print(hre.getError(GithubApiError.class).message);
-                                   }
-                                   throwable.printStackTrace();
+
                                }
                            }
                 );
@@ -131,17 +175,12 @@ public class SampleTest {
                 .subscribe(new Action1<ImgurResponse>() {
                                @Override
                                public void call(ImgurResponse response) {
-                                   System.out.print("imgur response:" + gson.toJson(response));
+
                                }
                            }, new Action1<Throwable>() {
                                @Override
                                public void call(Throwable throwable) {
-                                   throwable.printStackTrace();
 
-                                   if (throwable instanceof HttpResponseException) {
-                                       HttpResponseException hre = (HttpResponseException) throwable;
-                                       System.out.print(hre.getError());
-                                   }
                                }
                            }
                 );

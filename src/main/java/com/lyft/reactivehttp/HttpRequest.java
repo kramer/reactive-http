@@ -26,7 +26,7 @@ public class HttpRequest {
 
     private String url;
     private String method;
-    private HttpContent httpContent;
+    private TypedOutput body;
     private RequestExecutor requestExecutor;
     private Gson gson;
 
@@ -87,12 +87,12 @@ public class HttpRequest {
     }
 
     public HttpRequest data(Object data) {
-        httpContent = new JsonHttpContent(data, gson);
+        body = new JsonTypedOutput(data, gson);
         return this;
     }
 
     public HttpRequest file(String contentType, File file) {
-        httpContent = new FileContent(contentType, file);
+        body = new FileTypedOutput(contentType, file);
         return this;
     }
 
@@ -100,8 +100,8 @@ public class HttpRequest {
         return method;
     }
 
-    public HttpContent getHttpContent() {
-        return httpContent;
+    public TypedOutput getBody() {
+        return body;
     }
 
     public Map<String, String> getHeaders() {
@@ -151,5 +151,9 @@ public class HttpRequest {
         }
 
         return encodedValue;
+    }
+
+    void body(TypedOutput body) {
+        this.body = body;
     }
 }

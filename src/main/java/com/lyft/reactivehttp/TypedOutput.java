@@ -6,10 +6,10 @@ import java.io.OutputStream;
 /**
  * Created by zakharov on 12/15/13.
  */
-interface HttpContent {
+interface TypedOutput {
     String mimeType();
 
-    long getLength() throws IOException;
+    long length();
 
     void writeTo(OutputStream out) throws IOException;
 }

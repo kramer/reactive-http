@@ -1,10 +1,6 @@
 package com.lyft.reactivehttp;
 
-import com.lyft.reactivehttp.HttpContent;
-import com.lyft.reactivehttp.RequestExecutor;
 import rx.Observable;
-
-import java.util.Map;
 
 /**
  * Created by zakharov on 12/15/13.

@@ -5,13 +5,13 @@ import java.io.*;
 /**
  * Created by zakharov on 12/15/13.
  */
-class FileContent implements HttpContent {
+class FileTypedOutput implements TypedOutput {
     private static final int BUFFER_SIZE = 0x1000;
 
     private String contentType; // like "image/jpeg"
     private File file;
 
-    public FileContent(String contentType, File file) {
+    public FileTypedOutput(String contentType, File file) {
         this.contentType = contentType;
         this.file = file;
     }
@@ -27,7 +27,7 @@ class FileContent implements HttpContent {
     }
 
     @Override
-    public long getLength() throws IOException {
+    public long length() {
         return file.length();
     }
 

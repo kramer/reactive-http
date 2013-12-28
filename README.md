@@ -1,4 +1,4 @@
-## Lightweight REST http library with Observable interface.
+### Lightweight REST http library with Observable interface.
 
 ### Chainable API
 

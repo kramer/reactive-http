@@ -9,12 +9,12 @@ import java.io.UnsupportedEncodingException;
 /**
  * Created by zakharov on 12/15/13.
  */
-class JsonHttpContent implements HttpContent {
+class JsonTypedOutput implements TypedOutput {
     private final Object data;
     private Gson gson;
     private byte[] jsonBytes;
 
-    public JsonHttpContent(Object data, Gson gson) {
+    public JsonTypedOutput(Object data, Gson gson) {
         this.data = data;
         this.gson = gson;
     }
@@ -29,8 +29,12 @@ class JsonHttpContent implements HttpContent {
     }
 
     @Override
-    public long getLength() throws IOException {
-        return getJsonBytes().length;
+    public long length() {
+        try {
+            return getJsonBytes().length;
+        } catch (UnsupportedEncodingException e) {
+            return -1;
+        }
     }
 
     @Override
@@ -39,7 +43,7 @@ class JsonHttpContent implements HttpContent {
     }
 
     private byte[] getJsonBytes() throws UnsupportedEncodingException {
-        if (jsonBytes == null){
+        if (jsonBytes == null) {
             jsonBytes = gson.toJson(data).getBytes("UTF-8");
         }
         return jsonBytes;
