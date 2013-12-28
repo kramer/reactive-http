@@ -1,6 +1,6 @@
-#Lightweight REST http library with Observable interface.
+## Lightweight REST http library with Observable interface.
 
-##Chainable API
+### Chainable API
 
     client.create()
         .get("https://api.bar.com/do/%s/%s", "abc", "cba")
@@ -23,7 +23,7 @@
                    }
         );
 
-##Upload file
+### Upload file
 
 
     client.create()
