@@ -1,5 +1,6 @@
 package com.lyft.reactivehttp;
 
+import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -7,4 +8,8 @@ import java.io.OutputStream;
  */
 interface HttpContent {
     String mimeType();
+
+    long getLength() throws IOException;
+
+    void writeTo(OutputStream out) throws IOException;
 }

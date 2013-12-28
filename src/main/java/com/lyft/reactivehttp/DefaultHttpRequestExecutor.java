@@ -6,33 +6,31 @@ import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
 import rx.Subscription;
-import rx.concurrency.Schedulers;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 /**
  * Created by zakharov on 12/15/13.
  */
 public class DefaultHttpRequestExecutor implements RequestExecutor {
-    public static final Scheduler DEFAULT_SCHEDULER = Schedulers.executor(Executors.newFixedThreadPool(4));
+    Gson gson;
+    OkHttpClient okHttpClient;
+    private Scheduler scheduler;
 
-    Gson gson = new Gson();
-    OkHttpClient okHttpClient = new OkHttpClient();
+    public DefaultHttpRequestExecutor(OkHttpClient okHttpClient, Gson gson, Scheduler scheduler) {
+        this.okHttpClient = okHttpClient;
+        this.gson = gson;
+        this.scheduler = scheduler;
+    }
+
 
     @Override
-    public <T> Observable<T> execute(
-            final String method,
-            final String url,
-            final Map<String, String> headers,
-            final HttpContent httpContent,
-            final Class<T> responseClass) {
-        Observable<T> observable = Observable.create(new Observable.OnSubscribeFunc<T>() {
+    public <T> Observable<T> execute(final HttpRequest httpRequest, final Class<T> clazz) {
+        final Observable<T> observable = Observable.create(new Observable.OnSubscribeFunc<T>() {
+
             @Override
             public Subscription onSubscribe(Observer<? super T> observer) {
                 OutputStream out = null;
@@ -41,30 +39,30 @@ public class DefaultHttpRequestExecutor implements RequestExecutor {
                 HttpURLConnection connection = null;
 
                 try {
-                    connection = okHttpClient.open(new URL(url));
+                    connection = okHttpClient.open(new URL(httpRequest.getUrlWithQueryString()));
 
-                    connection.setRequestMethod(method);
+                    connection.setRequestMethod(httpRequest.getMethod());
 
-                    for (Map.Entry<String, String> headerEntry : headers.entrySet()) {
+                    for (Map.Entry<String, String> headerEntry : httpRequest.getHeaders().entrySet()) {
                         connection.addRequestProperty(headerEntry.getKey(), headerEntry.getValue());
                     }
 
-                    if (httpContent instanceof JsonHttpContent) {
-                        JsonHttpContent jsonHttpContent = (JsonHttpContent) httpContent;
-                        connection.addRequestProperty("Content-type", jsonHttpContent.mimeType());
+                    HttpContent httpContent = httpRequest.getHttpContent();
 
-                        String serializedData = gson.toJson(jsonHttpContent.getData());
-                        byte[] serializedBytes = serializedData.getBytes(Charset.forName("UTF-8"));
+                    if (httpContent != null) {
 
-                        long contentLength = serializedBytes.length;
+                        connection.addRequestProperty("Content-type", httpContent.mimeType());
+
+                        long contentLength = httpContent.getLength();
                         connection.setFixedLengthStreamingMode((int) contentLength);
-                        connection.addRequestProperty("Content-Length", String.valueOf(contentLength));
 
+                        connection.addRequestProperty("Content-Length", String.valueOf(contentLength));
                         out = connection.getOutputStream();
 
-                        out.write(serializedBytes);
+                        httpContent.writeTo(out);
                         out.close();
                     }
+
 
                     int statusCode = connection.getResponseCode();
 
@@ -72,7 +70,7 @@ public class DefaultHttpRequestExecutor implements RequestExecutor {
                         in = connection.getInputStream();
                         InputStreamReader isr = new InputStreamReader(in);
 
-                        T result = gson.fromJson(isr, responseClass);
+                        T result = gson.fromJson(isr, clazz);
 
                         observer.onNext(result);
                         observer.onCompleted();
@@ -116,7 +114,7 @@ public class DefaultHttpRequestExecutor implements RequestExecutor {
         });
 
         return observable
-                .subscribeOn(DEFAULT_SCHEDULER);
+                .subscribeOn(scheduler);
     }
 
     private String getStringFromInputStreamReader(InputStreamReader isr) throws IOException {

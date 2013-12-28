@@ -27,6 +27,14 @@ public class HttpResponseException extends IOException {
     }
 
     public <T> T getError(Class<T> clazz) {
-        return gson.fromJson(error, clazz);
+        try {
+            return gson.fromJson(error, clazz);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public boolean isServerError() {
+        return statusCode / 100 == 5;
     }
 }

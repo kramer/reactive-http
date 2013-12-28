@@ -1,5 +1,6 @@
 package com.lyft.reactivehttp;
 
+import com.google.gson.Gson;
 import rx.Observable;
 
 import java.io.File;
@@ -27,9 +28,11 @@ public class HttpRequest {
     private String method;
     private HttpContent httpContent;
     private RequestExecutor requestExecutor;
+    private Gson gson;
 
-    public HttpRequest(RequestExecutor requestExecutor) {
+    public HttpRequest(RequestExecutor requestExecutor, Gson gson) {
         this.requestExecutor = requestExecutor;
+        this.gson = gson;
     }
 
     public HttpRequest get(String url, Object... params) {
@@ -62,6 +65,11 @@ public class HttpRequest {
         return this;
     }
 
+    public HttpRequest delete(String url, Object... params) {
+        request(METHOD_DELETE, url, params);
+        return this;
+    }
+
     public HttpRequest request(String method, String url, Object... params) {
         this.url = String.format(url, params);
         this.method = method;
@@ -79,7 +87,7 @@ public class HttpRequest {
     }
 
     public HttpRequest data(Object data) {
-        httpContent = new JsonHttpContent(data);
+        httpContent = new JsonHttpContent(data, gson);
         return this;
     }
 
@@ -88,9 +96,20 @@ public class HttpRequest {
         return this;
     }
 
+    public String getMethod() {
+        return method;
+    }
+
+    public HttpContent getHttpContent() {
+        return httpContent;
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
 
     public <T> Observable<T> end(Class<T> responseClass) {
-        return requestExecutor.execute(method, getUrlWithQueryString(), headers, httpContent, responseClass);
+        return requestExecutor.execute(this, responseClass);
     }
 
 
@@ -106,7 +125,6 @@ public class HttpRequest {
             for (Map.Entry<String, String> entry : queryString.entrySet()) {
                 queryStringStr.append(encodeForUrl(entry.getKey()));
                 queryStringStr.append("=");
-
                 queryStringStr.append(encodeForUrl(entry.getValue()));
 
                 if (i < queryStringSize - 1) {
@@ -132,8 +150,6 @@ public class HttpRequest {
             // TODO raise custom exception here
         }
 
-        return value;
+        return encodedValue;
     }
-
-
 }
