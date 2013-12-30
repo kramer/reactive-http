@@ -1,3 +1,21 @@
+/*
+ *
+ *  * Copyright (C) 2012 Lyft, Inc.
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *      http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *
+ */
+
 package com.lyft.reactivehttp;
 
 import com.google.gson.Gson;
@@ -7,16 +25,16 @@ import rx.Observer;
 import rx.Scheduler;
 import rx.Subscription;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by zakharov on 12/15/13.
- */
 public class OkHttpRequestExecutor implements RequestExecutor {
     HttpLog log;
     boolean logEnabled;
