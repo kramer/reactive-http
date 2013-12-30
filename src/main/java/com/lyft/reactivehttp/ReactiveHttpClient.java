@@ -22,6 +22,9 @@ import com.google.gson.Gson;
 import com.squareup.okhttp.OkHttpClient;
 import rx.Scheduler;
 
+/**
+ * @author Alexey Zakharov
+ */
 public class ReactiveHttpClient {
     private final OkHttpRequestExecutor requestExecutor;
     private Scheduler scheduler;

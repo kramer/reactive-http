@@ -21,6 +21,9 @@ package com.lyft.reactivehttp;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * @author Alexey Zakharov
+ */
 public class TypedInputStream implements TypedInput {
     private final String mimeType;
     private final long length;

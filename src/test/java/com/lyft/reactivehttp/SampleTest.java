@@ -29,6 +29,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * @author Alexey Zakharov
+ */
 public class SampleTest {
 
     public static final String IMGUR_CLIENT_ID = "146bbf89f891032";

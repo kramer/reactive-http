@@ -21,6 +21,9 @@ package com.lyft.reactivehttp;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * @author Alexey Zakharov
+ */
 public class HttpResponse {
     TypedInput body;
     int statusCode;

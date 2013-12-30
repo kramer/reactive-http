@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
+/**
+ * @author Alexey Zakharov
+ */
 class JsonTypedOutput implements TypedOutput {
     private final Object data;
     private Gson gson;

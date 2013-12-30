@@ -23,6 +23,9 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * @author Alexey Zakharov
+ */
 public class HttpRequestTest {
     private Gson gson = new Gson();
 

@@ -20,6 +20,9 @@ package com.lyft.reactivehttp;
 
 import java.io.*;
 
+/**
+ * @author Alexey Zakharov
+ */
 public class Utils {
     private static final int BUFFER_SIZE = 0x1000;
 

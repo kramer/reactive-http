@@ -20,6 +20,9 @@ package com.lyft.reactivehttp;
 
 import rx.Observable;
 
+/**
+ * @author Alexey Zakharov
+ */
 public class MockHttpRequestExecutor implements RequestExecutor {
     HttpRequest httpRequest;
 

@@ -22,6 +22,9 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 
+/**
+ * @author Alexey Zakharov
+ */
 public class HttpResponseException extends IOException {
     int statusCode;
     String error;

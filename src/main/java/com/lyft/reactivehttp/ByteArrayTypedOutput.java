@@ -21,6 +21,9 @@ package com.lyft.reactivehttp;
 import java.io.IOException;
 import java.io.OutputStream;
 
+/**
+ * @author Alexey Zakharov
+ */
 public class ByteArrayTypedOutput implements TypedOutput {
 
     private final String mimeType;

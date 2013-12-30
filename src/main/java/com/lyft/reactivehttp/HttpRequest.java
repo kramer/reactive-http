@@ -27,6 +27,9 @@ import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * @author Alexey Zakharov
+ */
 public class HttpRequest {
     public static final String METHOD_DELETE = "DELETE";
     public static final String METHOD_GET = "GET";

@@ -22,6 +22,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * @author Alexey Zakharov
+ */
 public class TypedInputByteArray implements TypedInput {
     private final String mimeType;
     private final byte[] bytes;

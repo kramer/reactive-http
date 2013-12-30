@@ -20,7 +20,10 @@ package com.lyft.reactivehttp;
 
 import java.io.*;
 
-class FileTypedOutput implements TypedOutput {
+/**
+ * @author Alexey Zakharov
+ */
+public class FileTypedOutput implements TypedOutput {
     private static final int BUFFER_SIZE = 0x1000;
 
     private String contentType; // like "image/jpeg"

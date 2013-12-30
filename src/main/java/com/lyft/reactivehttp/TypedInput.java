@@ -21,6 +21,9 @@ package com.lyft.reactivehttp;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * @author Alexey Zakharov
+ */
 public interface TypedInput {
     /**
      * Returns the mime type.

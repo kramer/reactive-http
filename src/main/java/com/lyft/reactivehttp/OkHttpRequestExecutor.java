@@ -35,6 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author Alexey Zakharov
+ */
 public class OkHttpRequestExecutor implements RequestExecutor {
     HttpLog log;
     boolean logEnabled;

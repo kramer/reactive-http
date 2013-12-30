@@ -18,6 +18,9 @@
 
 package com.lyft.reactivehttp;
 
+/**
+ * @author Alexey Zakharov
+ */
 public interface HttpLog {
     /**
      * Log a debug message to the appropriate console.
