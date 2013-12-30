@@ -1,9 +1,6 @@
 package com.lyft.reactivehttp;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 /**
  * Created by zakharov on 12/27/13.
@@ -54,5 +51,20 @@ public class Utils {
             }
         }
         return baos.toByteArray();
+    }
+
+    static String inputStreamToString(InputStream stream) throws IOException {
+        InputStreamReader isr = new InputStreamReader(stream);
+
+        BufferedReader bufferedReader = new BufferedReader(isr);
+
+        StringBuilder result = new StringBuilder();
+
+        String line;
+
+        while ((line = bufferedReader.readLine()) != null) {
+            result.append(line);
+        }
+        return result.toString();
     }
 }

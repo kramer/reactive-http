@@ -10,13 +10,14 @@ import rx.Subscription;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by zakharov on 12/15/13.
  */
-public class DefaultHttpRequestExecutor implements RequestExecutor {
+public class OkHttpRequestExecutor implements RequestExecutor {
     HttpLog log;
     boolean logEnabled;
     Gson gson;
@@ -24,7 +25,7 @@ public class DefaultHttpRequestExecutor implements RequestExecutor {
     Scheduler scheduler;
 
 
-    public DefaultHttpRequestExecutor(OkHttpClient okHttpClient, Gson gson, Scheduler scheduler, HttpLog log, boolean logEnabled) {
+    public OkHttpRequestExecutor(OkHttpClient okHttpClient, Gson gson, Scheduler scheduler, HttpLog log, boolean logEnabled) {
         this.okHttpClient = okHttpClient;
         this.gson = gson;
         this.scheduler = scheduler;
@@ -91,6 +92,13 @@ public class DefaultHttpRequestExecutor implements RequestExecutor {
 
                     HttpResponse response = new HttpResponse(statusCode, typedInputStream);
 
+                    for (Map.Entry<String, List<String>> field : connection.getHeaderFields().entrySet()) {
+                        String name = field.getKey();
+                        for (String value : field.getValue()) {
+                            response.addHeader(name, value);
+                        }
+                    }
+
                     if (logEnabled) {
                         long elapsedTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
 
@@ -105,14 +113,12 @@ public class DefaultHttpRequestExecutor implements RequestExecutor {
                         observer.onNext(result);
                         observer.onCompleted();
                     } else {
-                        InputStreamReader isr = new InputStreamReader(response.getBody().in());
-
-                        Exception error = new HttpResponseException(connection.getResponseCode(), getStringFromInputStreamReader(isr), gson);
+                        Exception error = new HttpResponseException(connection.getResponseCode(), Utils.inputStreamToString(response.getBody().in()), gson);
 
                         throw (error);
                     }
 
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     observer.onError(e);
                 } finally {
                     try {
@@ -124,8 +130,8 @@ public class DefaultHttpRequestExecutor implements RequestExecutor {
                             in.close();
                         }
 
-                    } catch (Exception e) {
-
+                    } catch (Throwable e) {
+                        // suppress stream close errors
                     }
                 }
 
@@ -135,7 +141,11 @@ public class DefaultHttpRequestExecutor implements RequestExecutor {
                     @Override
                     public void unsubscribe() {
                         if (finalConnection != null) {
-                            finalConnection.disconnect();
+                            try {
+                                finalConnection.disconnect();
+                            } catch (Throwable e) {
+                                //suppress any exceptions during disconnect
+                            }
                         }
                     }
                 };
@@ -184,9 +194,9 @@ public class DefaultHttpRequestExecutor implements RequestExecutor {
         log.log(String.format("<--- HTTP %s %s (%sms)", response.getStatus(), url, elapsedTime));
 
 
-//            for (Header header : response.getHeaders()) {
-//                log.log(header.toString());
-//            }
+        for (Map.Entry<String, String> header : response.getHeaders().entrySet()) {
+            log.log(header.getKey() + ":" + header.getValue());
+        }
 
         long bodySize = 0;
         TypedInput body = response.getBody();
@@ -206,22 +216,5 @@ public class DefaultHttpRequestExecutor implements RequestExecutor {
         log.log(String.format("<--- END HTTP (%s-byte body)", bodySize));
 
         return response;
-    }
-
-    private String getStringFromInputStreamReader(InputStreamReader isr) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(isr);
-
-        StringBuilder result = new StringBuilder();
-
-        String line;
-
-        while ((line = bufferedReader.readLine()) != null) {
-            result.append(line);
-        }
-        return result.toString();
-    }
-
-    public static class HttpURLConnectionLogger {
-
     }
 }

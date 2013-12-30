@@ -8,7 +8,7 @@ import rx.Scheduler;
  * Created by zakharov on 12/15/13.
  */
 public class ReactiveHttpClient {
-    private final DefaultHttpRequestExecutor requestExecutor;
+    private final OkHttpRequestExecutor requestExecutor;
     private Scheduler scheduler;
     private HttpLog log;
     private boolean logEnabled;
@@ -22,7 +22,7 @@ public class ReactiveHttpClient {
         this.log = log;
         this.logEnabled = logEnabled;
 
-        requestExecutor = new DefaultHttpRequestExecutor(okHttpClient, gson, scheduler, log, logEnabled);
+        requestExecutor = new OkHttpRequestExecutor(okHttpClient, gson, scheduler, log, logEnabled);
     }
 
     public HttpRequest create() {
