@@ -2,7 +2,7 @@
 
 ### Chainable API
 
-    ReactiveHttpClient client = new ReactiveHttpClient(new OkHttpClient(), gson, Schedulers.currentThread(), null, false);
+    ReactiveHttpClient client = new ReactiveHttpClient(new OkHttpClient(), gson, Schedulers.executor(Executors.newFixedThreadPool(3), null, false);
 
     client.create()
         .post("https://api.bar.com/do/%s/%s", "abc", "cba")
