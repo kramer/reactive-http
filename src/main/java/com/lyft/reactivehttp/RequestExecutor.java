@@ -24,5 +24,7 @@ import rx.Observable;
  * @author Alexey Zakharov
  */
 public interface RequestExecutor {
+    Observable<HttpResponse> execute(final HttpRequest httpRequest);
+    Observable<String> executeAsString(final HttpRequest httpRequest);
     <T> Observable<T> execute(final HttpRequest httpRequest, final Class<T> clazz);
 }

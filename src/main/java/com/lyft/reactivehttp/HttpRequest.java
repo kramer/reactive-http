@@ -126,8 +126,16 @@ public class HttpRequest {
         return headers;
     }
 
-    public <T> Observable<T> end(Class<T> responseClass) {
+    public <T> Observable<T> observe(Class<T> responseClass) {
         return requestExecutor.execute(this, responseClass);
+    }
+
+    public Observable<HttpResponse> observe() {
+        return requestExecutor.execute(this);
+    }
+
+    public Observable<String> observeAsString() {
+        return requestExecutor.executeAsString(this);
     }
 
 

@@ -56,7 +56,42 @@ public class OkHttpRequestExecutor implements RequestExecutor {
 
 
     @Override
+    public Observable<HttpResponse> execute(HttpRequest httpRequest) {
+        return executeAndProcess(httpRequest, new ResponseProcessor<HttpResponse>() {
+            @Override
+            public HttpResponse process(HttpResponse httpResponse) throws Throwable {
+                return httpResponse;
+            }
+        });
+    }
+
+    @Override
+    public Observable<String> executeAsString(HttpRequest httpRequest) {
+        return executeAndProcess(httpRequest, new ResponseProcessor<String>() {
+            @Override
+            public String process(HttpResponse httpResponse) throws Throwable {
+                return Utils.inputStreamToString(httpResponse.getBody().in());
+            }
+        });
+    }
+
+    @Override
     public <T> Observable<T> execute(final HttpRequest request, final Class<T> clazz) {
+        return executeAndProcess(request, new ResponseProcessor<T>() {
+            @Override
+            public T process(HttpResponse httpResponse) throws Throwable {
+                InputStream in = httpResponse.getBody().in();
+
+                InputStreamReader isr = new InputStreamReader(in);
+                T result = gson.fromJson(isr, clazz);
+                in.close();
+
+                return result;
+            }
+        });
+    }
+
+    private <T> Observable<T> executeAndProcess(final HttpRequest request, final ResponseProcessor<T> responseProcessor) {
         final Observable<T> observable = Observable.create(new Observable.OnSubscribeFunc<T>() {
 
             @Override
@@ -127,9 +162,7 @@ public class OkHttpRequestExecutor implements RequestExecutor {
                     }
 
                     if (response.isSuccess()) {
-                        InputStreamReader isr = new InputStreamReader(response.getBody().in());
-
-                        T result = gson.fromJson(isr, clazz);
+                        T result = responseProcessor.process(response);
 
                         observer.onNext(result);
                         observer.onCompleted();
@@ -141,16 +174,19 @@ public class OkHttpRequestExecutor implements RequestExecutor {
 
                 } catch (Throwable e) {
                     observer.onError(e);
+
+                    try {
+                        if (in != null) {
+                            in.close();
+                        }
+                    } catch (Throwable e2) {
+                        // suppress stream close errors
+                    }
                 } finally {
                     try {
                         if (out != null) {
                             out.close();
                         }
-
-                        if (in != null) {
-                            in.close();
-                        }
-
                     } catch (Throwable e) {
                         // suppress stream close errors
                     }
@@ -175,6 +211,10 @@ public class OkHttpRequestExecutor implements RequestExecutor {
 
         return observable
                 .subscribeOn(scheduler);
+    }
+
+    public static interface ResponseProcessor<T> {
+        T process(HttpResponse httpResponse) throws Throwable;
     }
 
     private HttpRequest logRequest(HttpRequest request) throws IOException {

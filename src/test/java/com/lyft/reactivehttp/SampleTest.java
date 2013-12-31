@@ -75,7 +75,7 @@ public class SampleTest {
 
         client.create()
                 .get("https://api.github.com/repos/%s/%s/contributors", "lyft", "reactive-http")
-                .end(Contributors.class)
+                .observe(Contributors.class)
                 .finallyDo(new Action0() {
                     @Override
                     public void call() {
@@ -85,9 +85,30 @@ public class SampleTest {
                 .subscribe(new Action1<Contributors>() {
                     @Override
                     public void call(Contributors contributors) {
-                        for (Contributor contributor : contributors) {
+                        System.out.println("Contributors count" + contributors.size());
+                    }
+                });
 
-                        }
+        latch.await();
+    }
+
+    @Test
+    public void getRepoContributorsAsString() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        client.create()
+                .get("https://api.github.com/repos/%s/%s/contributors", "lyft", "reactive-http")
+                .observeAsString()
+                .finallyDo(new Action0() {
+                    @Override
+                    public void call() {
+                        latch.countDown();
+                    }
+                })
+                .subscribe(new Action1<String>() {
+                    @Override
+                    public void call(String result) {
+                        System.out.println("Contributors:" + result);
                     }
                 });
 
@@ -103,7 +124,7 @@ public class SampleTest {
         client.create()
                 .post("https://api.github.com/repos/%s/%s/contributors", "lyft", "reactive-http")
                 .data(data)
-                .end(Contributors.class)
+                .observe(Contributors.class)
                 .subscribe(new Action1<Contributors>() {
                                @Override
                                public void call(Contributors contributors) {
@@ -124,7 +145,7 @@ public class SampleTest {
     public void getNotExistingRepoContributors() {
         client.create()
                 .get("https://api.github.com/repos/%s/%s/contributors", "lyft", "asdfdsaf")
-                .end(Contributors.class)
+                .observe(Contributors.class)
                 .subscribe(new Action1<Contributors>() {
                                @Override
                                public void call(Contributors contributors) {
@@ -150,7 +171,7 @@ public class SampleTest {
         client.create()
                 .get("https://api.github.com")
                 .set("Authorization", "foo")
-                .end(Void.class)
+                .observe(Void.class)
                 .subscribe(new Action1<Void>() {
                                @Override
                                public void call(Void v) {
@@ -181,7 +202,7 @@ public class SampleTest {
                 .post("https://api.imgur.com/3/image")
                 .file("image/jpeg", file)
                 .set("Authorization", "Client-ID " + IMGUR_CLIENT_ID)
-                .end(ImgurResponse.class)
+                .observe(ImgurResponse.class)
                 .finallyDo(new Action0() {
                     @Override
                     public void call() {

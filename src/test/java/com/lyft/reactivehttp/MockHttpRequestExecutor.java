@@ -27,6 +27,18 @@ public class MockHttpRequestExecutor implements RequestExecutor {
     HttpRequest httpRequest;
 
     @Override
+    public Observable<HttpResponse> execute(HttpRequest httpRequest) {
+        this.httpRequest = httpRequest;
+        return null;
+    }
+
+    @Override
+    public Observable<String> executeAsString(HttpRequest httpRequest) {
+        this.httpRequest = httpRequest;
+        return null;
+    }
+
+    @Override
     public <T> Observable<T> execute(HttpRequest httpRequest, Class<T> clazz) {
         this.httpRequest = httpRequest;
         return null;
