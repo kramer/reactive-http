@@ -5,9 +5,10 @@
     ReactiveHttpClient client = new ReactiveHttpClient(new OkHttpClient(), gson, Schedulers.currentThread(), null, false);
 
     client.create()
-        .get("https://api.bar.com/do/%s/%s", "abc", "cba")
-        .query("foo, "bar");
-        .set("Authorization", "foo:bar");
+        .post("https://api.bar.com/do/%s/%s", "abc", "cba")
+        .query("foo, "bar")
+        .set("Authorization", "foo:bar")
+        .data(new MyData(1, "2"))
         .observe(MyResponse.class)
         .subscribe(new Action1<MyResponse>() {
                        @Override
