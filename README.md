@@ -8,7 +8,7 @@ Reactive http is lightweight REST http library with Observable(RxJava) interface
 ReactiveHttpClient client = new ReactiveHttpClient(new OkHttpClient(), new Gson(), Schedulers.executor(Executors.newFixedThreadPool(3), null, false);
 client.create()
     .post("https://api.bar.com/do/%s/%s", "abc", "cba")
-    .query("foo, "bar")
+    .query("foo", "bar")
     .set("Authorization", "foo:bar")
     .data(new MyData(1, "2"))
     .observe(MyResponse.class)
