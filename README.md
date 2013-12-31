@@ -2,6 +2,8 @@
 
 ### Chainable API
 
+    ReactiveHttpClient client = new ReactiveHttpClient(new OkHttpClient(), gson, Schedulers.currentThread(), null, false);
+
     client.create()
         .get("https://api.bar.com/do/%s/%s", "abc", "cba")
         .query("foo, "bar");
@@ -76,6 +78,21 @@
                            }
                        }
             );
+
+### Logging
+
+    public class ConsoleLog implements HttpLog {
+        @Override
+        public void log(String message) {
+            for (int i = 0, len = message.length(); i < len; i += LOG_CHUNK_SIZE) {
+                int end = Math.min(len, i + LOG_CHUNK_SIZE);
+                System.out.println(message.substring(i, end));
+            }
+        }
+     }
+
+    // supply log class and set logging enabled param to true
+    ReactiveHttpClient client = new ReactiveHttpClient(new OkHttpClient(), gson, Schedulers.currentThread(), new ConsoleLog(), true);
 
 ### Inspired by
 
