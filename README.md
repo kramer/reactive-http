@@ -23,6 +23,44 @@
                    }
         );
 
+### Put common headers
+    private HttpRequest createRequest() {
+        return client.create()
+            .set("Authorization", "foo:bar")
+            .set("Accept-Language", "en-US")
+    }
+
+    private Observable<Foo> requestFoo() {
+        return createRequest()
+                .get("https://api.bar.com/foo")
+                .observe(Foo.class);
+    }
+
+### Receive full http response
+
+    client.create()
+            .get("https://api.bar.com/do/")
+            .observe()
+            .subscribe(new Action1<HttpResponse>() {
+                   @Override
+                   public void call(HttpResponse response) {
+
+                   }
+            });
+
+### Receive response as string
+
+    client.create()
+            .get("https://api.bar.com/do/")
+            .observeAsString()
+            .subscribe(new Action1<String>() {
+                   @Override
+                   public void call(String response) {
+
+                   }
+            });
+
+
 ### Upload file
 
 
@@ -38,3 +76,9 @@
                            }
                        }
             );
+
+### Inspired by
+
+* [Http Request](https://github.com/kevinsawicki/http-request) by Kevin Sawicki
+* [Retrofit](http://square.github.io/retrofit/) by Square
+* [Super Agent](http://visionmedia.github.io/superagent/) by TJ Holowaychuk
