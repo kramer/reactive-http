@@ -6,7 +6,7 @@
         .get("https://api.bar.com/do/%s/%s", "abc", "cba")
         .query("foo, "bar");
         .set("Authorization", "foo:bar");
-        .end(MyResponse.class)
+        .observe(MyResponse.class)
         .subscribe(new Action1<MyResponse>() {
                        @Override
                        public void call(MyResponse response) {
@@ -30,7 +30,7 @@
             .post("https://api.imgur.com/3/image")
             .file("image/jpeg", file)
             .set("Authorization", "Client-ID " + IMGUR_CLIENT_ID)
-            .end(ImgurResponse.class)
+            .observe(ImgurResponse.class)
             .subscribe(new Action1<ImgurResponse>() {
                            @Override
                            public void call(ImgurResponse response) {
