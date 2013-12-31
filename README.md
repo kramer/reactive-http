@@ -95,6 +95,17 @@
     // supply log class and set logging enabled param to true
     ReactiveHttpClient client = new ReactiveHttpClient(new OkHttpClient(), gson, Schedulers.currentThread(), new ConsoleLog(), true);
 
+### Maven
+    <dependency>
+        <groupId>com.lyft</groupId>
+        <artifactId>reactivehttp</artifactId>
+        <version>0.0.1</version>
+    </dependency>
+
+### Android studio
+
+    compile 'com.lyft:reactivehttp:0.0.1'
+
 ### Inspired by
 
 * [Http Request](https://github.com/kevinsawicki/http-request) by Kevin Sawicki
