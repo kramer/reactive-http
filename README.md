@@ -105,6 +105,10 @@
 ### Android studio
 
     compile 'com.lyft:reactivehttp:0.0.1'
+    
+## Bugs and Feedback
+
+For bugs, questions and discussions please use the [Github Issues](https://github.com/lyft/rective-http/issues).
 
 ### Inspired by
 
