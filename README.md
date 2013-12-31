@@ -1,4 +1,6 @@
-### Lightweight REST http library with Observable interface.
+# Reactive Http
+
+Reactive http is lightweight REST http library with Observable(RxJava) interface.
 
 ### Chainable API
 
