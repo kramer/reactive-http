@@ -29,6 +29,15 @@ client.create()
     );
 ```
 
+### Fix Fatal signal 11 (SIGSEGV) at 0x00000000 (code=1) on Android
+
+OkHttp has a [problem](https://github.com/square/okhttp/issues/184) that cause this crush on Android. Official workaround from square is to do following just after OkHttpClient instance is created:
+
+```java
+OkHttpClient okHttpClient = new OkHttpClient();
+URL.setURLStreamHandlerFactory(okHttpClient);
+```
+
 ### Put common headers
 ```java
 private HttpRequest createRequest() {
