@@ -15,15 +15,16 @@ client.create()
     .subscribe(new Action1<MyResponse>() {
                    @Override
                    public void call(MyResponse response) {
-                           if (throwable instanceof HttpResponseException) {
-                               HttpResponseException hre = (HttpResponseException) throwable;
-                               GitHubError error = hre.getError(GithubApiError.class).message);
-                           }
+
                    }
-               }, new Action1<Throwable>() {
+               },
+               new Action1<Throwable>() {
                    @Override
                    public void call(Throwable throwable) {
-
+                       if (throwable instanceof HttpResponseException) {
+                           HttpResponseException hre = (HttpResponseException) throwable;
+                           GitHubError error = hre.getError(GithubApiError.class).message);
+                       }
                    }
                }
     );
@@ -31,7 +32,7 @@ client.create()
 
 ### Fix Fatal signal 11 (SIGSEGV) at 0x00000000 (code=1) on Android
 
-OkHttp has a [problem](https://github.com/square/okhttp/issues/184) that cause this crush on Android. Official workaround from square is to do following just after OkHttpClient instance is created:
+OkHttp has a [problem](https://github.com/square/okhttp/issues/184) that causes this crash on Android. The official workaround from square is to do the following just after OkHttpClient instance is created:
 
 ```java
 OkHttpClient okHttpClient = new OkHttpClient();
