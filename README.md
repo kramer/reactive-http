@@ -1,6 +1,6 @@
-# Reactive Http
+# Reactive HTTP
 
-Reactive http is lightweight REST http library with Observable(RxJava) interface.
+Reactive HTTP is a lightweight REST HTTP library with Observable(RxJava) interface.
 
 ### Chainable API
 
@@ -32,14 +32,14 @@ client.create()
 
 ### Fix Fatal signal 11 (SIGSEGV) at 0x00000000 (code=1) on Android
 
-OkHttp has a [problem](https://github.com/square/okhttp/issues/184) that causes this crash on Android. The official workaround from square is to do the following just after OkHttpClient instance is created:
+OkHttp has a [problem](https://github.com/square/okhttp/issues/184) that causes this crash on Android. The official workaround from Square is to do the following just after OkHttpClient instance is created:
 
 ```java
 OkHttpClient okHttpClient = new OkHttpClient();
 URL.setURLStreamHandlerFactory(okHttpClient);
 ```
 
-### Put common headers
+### Add common headers
 ```java
 private HttpRequest createRequest() {
     return client.create()
@@ -53,7 +53,7 @@ private Observable<Foo> requestFoo() {
             .observe(Foo.class);
 }
 ```
-### Receive full http response
+### Send HTTP request, with HttpResponse callback.
 ```java
 client.create()
         .get("https://api.bar.com/do/")
@@ -65,7 +65,7 @@ client.create()
                }
         });
 ```
-### Receive response as string
+### Send HTTP request, with String callback.
 ```java
 client.create()
         .get("https://api.bar.com/do/")
@@ -77,7 +77,7 @@ client.create()
                }
         });
 ```
-### Upload file
+### Upload a file
 
 ```java
 client.create()
@@ -121,7 +121,7 @@ ReactiveHttpClient client = new ReactiveHttpClient(new OkHttpClient(), new Gson(
 ```groovy
 compile 'com.lyft:reactivehttp:0.0.1'
 ```
-    
+
 ### Bugs and Feedback
 
 For bugs, questions and discussions please use the [Github Issues](https://github.com/lyft/rective-http/issues).
