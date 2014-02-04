@@ -101,7 +101,7 @@ HttpRequest request = client.create()
         .get("https://api.bar.com/do/");
 
 HttpResponse response = request.execute();
-T result = request.execute(Bar.class);
+Bar result = request.execute(Bar.class);
 String str = request.executeAsString();
 
 ```
