@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import rx.Observable;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.LinkedHashMap;
@@ -45,11 +46,11 @@ public class HttpRequest {
     private String url;
     private String method;
     private TypedOutput body;
-    private RequestExecutor requestExecutor;
+    private ReactiveHttpClient reactiveHttpClient;
     private Gson gson;
 
-    public HttpRequest(RequestExecutor requestExecutor, Gson gson) {
-        this.requestExecutor = requestExecutor;
+    public HttpRequest(ReactiveHttpClient reactiveHttpClient, Gson gson) {
+        this.reactiveHttpClient = reactiveHttpClient;
         this.gson = gson;
     }
 
@@ -127,15 +128,27 @@ public class HttpRequest {
     }
 
     public <T> Observable<T> observe(Class<T> responseClass) {
-        return requestExecutor.execute(this, responseClass);
+        return reactiveHttpClient.observe(this, responseClass);
     }
 
     public Observable<HttpResponse> observe() {
-        return requestExecutor.execute(this);
+        return reactiveHttpClient.observe(this);
     }
 
     public Observable<String> observeAsString() {
-        return requestExecutor.executeAsString(this);
+        return reactiveHttpClient.observeAsString(this);
+    }
+
+    public <T> T execute(Class<T> responseClass) throws IOException {
+        return reactiveHttpClient.execute(this, responseClass);
+    }
+
+    public HttpResponse execute() throws IOException {
+        return reactiveHttpClient.execute(this);
+    }
+
+    public String executeAsString() throws IOException {
+        return reactiveHttpClient.executeAsString(this);
     }
 
 

@@ -21,7 +21,7 @@ package com.lyft.reactivehttp;
 import com.google.gson.Gson;
 import com.squareup.okhttp.OkHttpClient;
 import org.junit.Test;
-import rx.concurrency.Schedulers;
+import rx.schedulers.Schedulers;
 import rx.util.functions.Action0;
 import rx.util.functions.Action1;
 
@@ -35,19 +35,6 @@ import java.util.concurrent.CountDownLatch;
 public class SampleTest {
 
     public static final String IMGUR_CLIENT_ID = "146bbf89f891032";
-
-    static class ConsoleLog implements HttpLog {
-
-        @Override
-        public void log(String message) {
-            for (int i = 0, len = message.length(); i < len; i += LOG_CHUNK_SIZE) {
-                int end = Math.min(len, i + LOG_CHUNK_SIZE);
-                System.out.println(message.substring(i, end));
-            }
-        }
-    }
-
-    private static final int LOG_CHUNK_SIZE = 4000;
 
     public static class Contributor {
         String login;
@@ -65,9 +52,13 @@ public class SampleTest {
 //        );
 //    }
 
-    private final Gson gson = new Gson();
 
-    ReactiveHttpClient client = new ReactiveHttpClient(new OkHttpClient(), gson, Schedulers.currentThread(), new ConsoleLog(), true);
+    ReactiveHttpClient client = new ReactiveHttpClient(
+            new OkHttpTransport(new OkHttpClient()),
+            new Gson(),
+            Schedulers.currentThread(),
+            new ConsoleLog(),
+            true);
 
     @Test
     public void getRepoContributors() throws InterruptedException {

@@ -93,6 +93,19 @@ client.create()
                    }
         );
 ```
+
+### Sync execution
+
+```java
+HttpRequest request = client.create()
+        .get("https://api.bar.com/do/");
+
+HttpResponse response = request.execute();
+T result = request.execute(Bar.class);
+String str = request.executeAsString();
+
+```
+
 ### Logging
 ```java
 public class ConsoleLog implements HttpLog {

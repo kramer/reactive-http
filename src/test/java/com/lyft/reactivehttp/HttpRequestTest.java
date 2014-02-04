@@ -19,7 +19,9 @@
 package com.lyft.reactivehttp;
 
 import com.google.gson.Gson;
+import com.squareup.okhttp.OkHttpClient;
 import org.junit.Test;
+import rx.schedulers.Schedulers;
 
 import static org.junit.Assert.assertEquals;
 
@@ -27,19 +29,26 @@ import static org.junit.Assert.assertEquals;
  * @author Alexey Zakharov
  */
 public class HttpRequestTest {
+
     private Gson gson = new Gson();
+
+    ReactiveHttpClient client = new ReactiveHttpClient(
+            new OkHttpTransport(new OkHttpClient()),
+            gson,
+            Schedulers.currentThread(),
+            new ConsoleLog(),
+            true);
 
     @Test
     public void createGet() {
-        MockHttpRequestExecutor requestExecutor = new MockHttpRequestExecutor();
-        HttpRequest request = new HttpRequest(requestExecutor, gson).get("http://google.com/%s/", "request");
+        HttpRequest request = new HttpRequest(client, gson).get("http://google.com/%s/", "request");
         assertEquals("http://google.com/request/", request.getUrlWithQueryString());
     }
 
     @Test
     public void createQueryString() {
-        MockHttpRequestExecutor requestExecutor = new MockHttpRequestExecutor();
-        HttpRequest request = new HttpRequest(requestExecutor, gson).get("http://google.com").query("q1", "abc").query("q2", "cba");
+
+        HttpRequest request = new HttpRequest(client, gson).get("http://google.com").query("q1", "abc").query("q2", "cba");
         assertEquals("http://google.com?q1=abc&q2=cba", request.getUrlWithQueryString());
     }
 }
