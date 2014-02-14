@@ -26,12 +26,12 @@ public class OkHttpTransport implements HttpTransport {
         HttpResponse response = null;
 
         try {
-            connection = okHttpClient.open(new URL(request.getUrlWithQueryString()));
+            connection = okHttpClient.open(new URL(request.getUrl()));
 
             connection.setRequestMethod(request.getMethod());
 
-            for (Map.Entry<String, String> headerEntry : request.getHeaders().entrySet()) {
-                connection.addRequestProperty(headerEntry.getKey(), headerEntry.getValue());
+            for (NameValuePair header : request.getHeaders()) {
+                connection.addRequestProperty(header.getName(), header.getValue());
             }
 
             TypedOutput requestBody = request.getBody();

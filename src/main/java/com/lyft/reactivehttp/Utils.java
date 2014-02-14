@@ -37,9 +37,7 @@ public class Utils {
         body.writeTo(baos);
         body = new ByteArrayTypedOutput(bodyMime, baos.toByteArray());
 
-        request.body(body);
-
-        return request;
+        return new HttpRequest(request.getMethod(), request.getUrl(), request.getHeaders(), body);
     }
 
     static HttpResponse cacheResponse(HttpResponse response) throws IOException {

@@ -18,181 +18,57 @@
 
 package com.lyft.reactivehttp;
 
-import com.google.gson.Gson;
-import rx.Observable;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Alexey Zakharov
  */
-public class HttpRequest {
-    public static final String METHOD_DELETE = "DELETE";
-    public static final String METHOD_GET = "GET";
-    public static final String METHOD_HEAD = "HEAD";
-    public static final String METHOD_OPTIONS = "OPTIONS";
-    public static final String METHOD_POST = "POST";
-    public static final String METHOD_PUT = "PUT";
-    public static final String METHOD_PATCH = "PATCH";
+public final class HttpRequest {
+    private final String method;
+    private final String url;
+    private final List<NameValuePair> headers;
+    private final TypedOutput body;
 
-    final Map<String, String> queryString = new LinkedHashMap<String, String>();
-    final Map<String, String> headers = new LinkedHashMap<String, String>();
-
-    private String url;
-    private String method;
-    private TypedOutput body;
-    private ReactiveHttpClient reactiveHttpClient;
-    private Gson gson;
-
-    public HttpRequest(ReactiveHttpClient reactiveHttpClient, Gson gson) {
-        this.reactiveHttpClient = reactiveHttpClient;
-        this.gson = gson;
-    }
-
-    public HttpRequest get(String url, Object... params) {
-        request(METHOD_GET, url, params);
-        return this;
-    }
-
-    public HttpRequest post(String url, Object... params) {
-        request(METHOD_POST, url, params);
-        return this;
-    }
-
-    public HttpRequest put(String url, Object... params) {
-        request(METHOD_PUT, url, params);
-        return this;
-    }
-
-    public HttpRequest head(String url, Object... params) {
-        request(METHOD_HEAD, url, params);
-        return this;
-    }
-
-    public HttpRequest patch(String url, Object... params) {
-        request(METHOD_PATCH, url, params);
-        return this;
-    }
-
-    public HttpRequest options(String url, Object... params) {
-        request(METHOD_OPTIONS, url, params);
-        return this;
-    }
-
-    public HttpRequest delete(String url, Object... params) {
-        request(METHOD_DELETE, url, params);
-        return this;
-    }
-
-    public HttpRequest request(String method, String url, Object... params) {
-        this.url = String.format(url, params);
+    public HttpRequest(String method, String url, List<NameValuePair> headers, TypedOutput body) {
+        if (method == null) {
+            throw new NullPointerException("Method must not be null.");
+        }
+        if (url == null) {
+            throw new NullPointerException("URL must not be null.");
+        }
         this.method = method;
-        return this;
+        this.url = url;
+
+        if (headers == null) {
+            this.headers = Collections.emptyList();
+        } else {
+            this.headers = Collections.unmodifiableList(new ArrayList<NameValuePair>(headers));
+        }
+
+        this.body = body;
     }
 
-    public HttpRequest query(String paramName, Object paramValue) {
-        queryString.put(paramName, paramValue.toString());
-        return this;
-    }
-
-    public HttpRequest set(String paramName, Object paramValue) {
-        headers.put(paramName, paramValue.toString());
-        return this;
-    }
-
-    public HttpRequest data(Object data) {
-        body = new JsonTypedOutput(data, gson);
-        return this;
-    }
-
-    public HttpRequest file(String contentType, File file) {
-        body = new FileTypedOutput(contentType, file);
-        return this;
-    }
-
+    /** HTTP method verb. */
     public String getMethod() {
         return method;
     }
 
+    /** Target URL. */
+    public String getUrl() {
+        return url;
+    }
+
+    /** Returns an unmodifiable list of headers, never {@code null}. */
+    public List<NameValuePair> getHeaders() {
+        return headers;
+    }
+
+    /** Returns the request body or {@code null}. */
     public TypedOutput getBody() {
         return body;
     }
 
-    public Map<String, String> getHeaders() {
-        return headers;
-    }
 
-    public <T> Observable<T> observe(Class<T> responseClass) {
-        return reactiveHttpClient.observe(this, responseClass);
-    }
-
-    public Observable<HttpResponse> observe() {
-        return reactiveHttpClient.observe(this);
-    }
-
-    public Observable<String> observeAsString() {
-        return reactiveHttpClient.observeAsString(this);
-    }
-
-    public <T> T execute(Class<T> responseClass) throws IOException {
-        return reactiveHttpClient.execute(this, responseClass);
-    }
-
-    public HttpResponse execute() throws IOException {
-        return reactiveHttpClient.execute(this);
-    }
-
-    public String executeAsString() throws IOException {
-        return reactiveHttpClient.executeAsString(this);
-    }
-
-
-    public String getUrlWithQueryString() {
-        StringBuilder queryStringStr = new StringBuilder();
-
-        int queryStringSize = queryString.size();
-        if (queryStringSize > 0) {
-            queryStringStr.append("?");
-
-            int i = 0;
-
-            for (Map.Entry<String, String> entry : queryString.entrySet()) {
-                queryStringStr.append(encodeForUrl(entry.getKey()));
-                queryStringStr.append("=");
-                queryStringStr.append(encodeForUrl(entry.getValue()));
-
-                if (i < queryStringSize - 1) {
-                    queryStringStr.append("&");
-                }
-
-                i++;
-            }
-        }
-        return queryStringStr.insert(0, url).toString();
-    }
-
-    private String encodeForUrl(String value) {
-        String encodedValue = "";
-
-        try {
-            encodedValue = URLEncoder.encode(String.valueOf(value), "UTF-8");
-            // URLEncoder encodes for use as a query parameter. Path encoding uses %20 to
-            // encode spaces rather than +. Query encoding difference specified in HTML spec.
-            // Any remaining plus signs represent spaces as already URLEncoded.
-            encodedValue = encodedValue.replace("+", "%20");
-        } catch (UnsupportedEncodingException e) {
-            // TODO raise custom exception here
-        }
-
-        return encodedValue;
-    }
-
-    void body(TypedOutput body) {
-        this.body = body;
-    }
 }

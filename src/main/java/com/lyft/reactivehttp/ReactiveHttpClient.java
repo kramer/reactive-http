@@ -19,7 +19,6 @@
 package com.lyft.reactivehttp;
 
 import com.google.gson.Gson;
-import com.squareup.okhttp.OkHttpClient;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
@@ -51,8 +50,8 @@ public class ReactiveHttpClient {
         this.logEnabled = logEnabled;
     }
 
-    public HttpRequest create() {
-        return new HttpRequest(this, gson);
+    public HttpRequestBuilder create() {
+        return new HttpRequestBuilder(this, gson);
     }
 
 
@@ -127,7 +126,7 @@ public class ReactiveHttpClient {
         if (logEnabled) {
             long elapsedTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
 
-            response = logResponse(request.getUrlWithQueryString(), response, elapsedTime);
+            response = logResponse(request.getUrl(), response, elapsedTime);
         }
 
         T result = responseProcessor.process(response);
@@ -162,11 +161,11 @@ public class ReactiveHttpClient {
     }
 
     private HttpRequest logRequest(HttpRequest request) throws IOException {
-        log.log(String.format("---> %s %s", request.getMethod(), request.getUrlWithQueryString()));
+        log.log(String.format("---> %s %s", request.getMethod(), request.getUrl()));
 
 
-        for (Map.Entry<String, String> header : request.getHeaders().entrySet()) {
-            log.log(header.getKey() + ":" + header.getValue());
+        for (NameValuePair header : request.getHeaders()) {
+            log.log(header.getName() + ":" + header.getValue());
         }
 
         long bodySize = 0;

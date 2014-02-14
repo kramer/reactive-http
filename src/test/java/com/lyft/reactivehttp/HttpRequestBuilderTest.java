@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Alexey Zakharov
  */
-public class HttpRequestTest {
+public class HttpRequestBuilderTest {
 
     private Gson gson = new Gson();
 
@@ -41,14 +41,14 @@ public class HttpRequestTest {
 
     @Test
     public void createGet() {
-        HttpRequest request = new HttpRequest(client, gson).get("http://google.com/%s/", "request");
+        HttpRequestBuilder request = new HttpRequestBuilder(client, gson).get("http://google.com/%s/", "request");
         assertEquals("http://google.com/request/", request.getUrlWithQueryString());
     }
 
     @Test
     public void createQueryString() {
 
-        HttpRequest request = new HttpRequest(client, gson).get("http://google.com").query("q1", "abc").query("q2", "cba");
+        HttpRequestBuilder request = new HttpRequestBuilder(client, gson).get("http://google.com").query("q1", "abc").query("q2", "cba");
         assertEquals("http://google.com?q1=abc&q2=cba", request.getUrlWithQueryString());
     }
 }
