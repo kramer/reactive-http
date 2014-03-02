@@ -26,6 +26,7 @@ import rx.util.functions.Action0;
 import rx.util.functions.Action1;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
@@ -52,19 +53,22 @@ public class SampleTest {
 //        );
 //    }
 
+    private Gson gson = new Gson();
 
-    ReactiveHttpClient client = new ReactiveHttpClient(
-            new OkHttpTransport(new OkHttpClient()),
-            new Gson(),
-            Schedulers.currentThread(),
-            new ConsoleLog(),
-            true);
+    protected ReactiveHttpClient createClient() {
+        return  new ReactiveHttpClient(
+                new OkHttpTransport(new OkHttpClient()),
+                gson,
+                Schedulers.currentThread(),
+                new ConsoleLog(),
+                false);
+    }
 
     @Test
     public void getRepoContributors() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
 
-        client.create()
+        createClient().create()
                 .get("https://api.github.com/repos/%s/%s/contributors", "lyft", "reactive-http")
                 .observe(Contributors.class)
                 .finallyDo(new Action0() {
@@ -87,7 +91,7 @@ public class SampleTest {
     public void getRepoContributorsAsString() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
 
-        client.create()
+        createClient().create()
                 .get("https://api.github.com/repos/%s/%s/contributors", "lyft", "reactive-http")
                 .observeAsString()
                 .finallyDo(new Action0() {
@@ -112,7 +116,7 @@ public class SampleTest {
         data.login = "sdfsdaf";
         int contributions = 232;
 
-        client.create()
+        createClient().create()
                 .post("https://api.github.com/repos/%s/%s/contributors", "lyft", "reactive-http")
                 .data(data)
                 .observe(Contributors.class)
@@ -134,7 +138,7 @@ public class SampleTest {
 
     @Test
     public void getNotExistingRepoContributors() {
-        client.create()
+        createClient().create()
                 .get("https://api.github.com/repos/%s/%s/contributors", "lyft", "asdfdsaf")
                 .observe(Contributors.class)
                 .subscribe(new Action1<Contributors>() {
@@ -152,13 +156,46 @@ public class SampleTest {
     }
 
 
-    static class GithubApiError {
+    public static class GithubApiError {
         String message;
+    }
+
+    public static class GithubException extends IOException {
+
+        private int status;
+        private GithubApiError error;
+
+        public GithubException(int status, GithubApiError error) {
+
+            this.status = status;
+            this.error = error;
+        }
+
+        public int getStatus() {
+            return status;
+        }
+
+        public GithubApiError getError() {
+            return error;
+        }
+    }
+
+    public static class GithubErrorHandler implements ErrorHandler {
+
+        @Override
+        public Throwable handleError(HttpResponseException cause) {
+            GithubException ge = new GithubException(cause.getStatus(), cause.getBodyAs(GithubApiError.class));
+
+            return ge;
+        }
     }
 
 
     @Test
     public void failAuthroizeOnGithub() {
+        ReactiveHttpClient client = createClient();
+
+        client.setErrorHandler(new GithubErrorHandler());
         client.create()
                 .get("https://api.github.com")
                 .set("Authorization", "foo")
@@ -170,8 +207,11 @@ public class SampleTest {
                                }
                            }, new Action1<Throwable>() {
                                @Override
-                               public void call(Throwable throwable) {
+                               public void call(Throwable e) {
+                                    if (e instanceof GithubException) {
 
+                                        GithubException ge = (GithubException) e;
+                                    }
                                }
                            }
                 );
@@ -189,7 +229,7 @@ public class SampleTest {
 
         final CountDownLatch latch = new CountDownLatch(1);
 
-        client.create()
+        createClient().create()
                 .post("https://api.imgur.com/3/image")
                 .file("image/jpeg", file)
                 .set("Authorization", "Client-ID " + IMGUR_CLIENT_ID)

@@ -40,9 +40,16 @@ public class ReactiveHttpClient {
     Gson gson;
     HttpTransport httpTransport;
     Scheduler scheduler;
+    ErrorHandler errorHandler = ErrorHandler.DEFAULT;
 
 
-    public ReactiveHttpClient(HttpTransport httpTransport, Gson gson, Scheduler scheduler, HttpLog log, boolean logEnabled) {
+    public ReactiveHttpClient(
+            HttpTransport httpTransport,
+            Gson gson,
+            Scheduler scheduler,
+            HttpLog log,
+            boolean logEnabled) {
+
         this.httpTransport = httpTransport;
         this.gson = gson;
         this.scheduler = scheduler;
@@ -50,20 +57,24 @@ public class ReactiveHttpClient {
         this.logEnabled = logEnabled;
     }
 
+    public void setErrorHandler(ErrorHandler errorHandler) {
+        this.errorHandler = errorHandler;
+    }
+
     public HttpRequestBuilder create() {
         return new HttpRequestBuilder(this, gson);
     }
 
 
-    public HttpResponse execute(HttpRequest httpRequest) throws IOException {
+    public HttpResponse execute(HttpRequest httpRequest) throws Throwable {
         return executeAndProcess(httpRequest, new SimpleResponseProcessor());
     }
 
-    public String executeAsString(HttpRequest httpRequest) throws IOException {
+    public String executeAsString(HttpRequest httpRequest) throws Throwable {
         return executeAndProcess(httpRequest, new StringResponseProcessor());
     }
 
-    public <T> T execute(final HttpRequest request, final Class<T> clazz) throws IOException {
+    public <T> T execute(final HttpRequest request, final Class<T> clazz) throws Throwable {
         return executeAndProcess(request, new JsonResponseProcessor<T>(gson, clazz));
     }
 
@@ -114,7 +125,7 @@ public class ReactiveHttpClient {
         }
     }
 
-    private <T> T executeAndProcess(final HttpRequest request, final ResponseProcessor<T> responseProcessor) throws IOException {
+    private <T> T executeAndProcess(final HttpRequest request, final ResponseProcessor<T> responseProcessor) throws Throwable {
         long start = System.nanoTime();
 
         if (logEnabled) {
@@ -129,9 +140,13 @@ public class ReactiveHttpClient {
             response = logResponse(request.getUrl(), response, elapsedTime);
         }
 
-        T result = responseProcessor.process(response);
-
-        return result;
+        if (response.getStatus() >= 200 && response.getStatus() < 300) {
+            T result = responseProcessor.process(response);
+            return result;
+        } else {
+            HttpResponseException e = new HttpResponseException(request.getUrl(), response, gson);
+            throw errorHandler.handleError(e);
+        }
     }
 
     private <T> Observable<T> observeAndProcess(final HttpRequest request, final ResponseProcessor<T> responseProcessor) {

@@ -27,26 +27,28 @@ import java.io.IOException;
  */
 public class HttpResponseException extends IOException {
     int statusCode;
-    String error;
+    private HttpResponse response;
     private Gson gson;
+    private String url;
 
-    public HttpResponseException(int statusCode, String error, Gson gson) {
-        this.statusCode = statusCode;
-        this.error = error;
+    public HttpResponseException(String url, HttpResponse response,  Gson gson) {
+        this.url = url;
+        this.response = response;
         this.gson = gson;
     }
 
-    public int getStatusCode() {
-        return statusCode;
+    public String getUrl() {
+        return url;
     }
 
-    public String getError() {
-        return error;
+    public int getStatus() {
+        return response.getStatus();
     }
 
-    public <T> T getError(Class<T> clazz) {
+    public <T> T getBodyAs(Class<T> clazz) {
         try {
-            return gson.fromJson(error, clazz);
+            String errorStr = Utils.inputStreamToString(response.getBody().in());
+            return gson.fromJson(errorStr, clazz);
         } catch (Exception e) {
             return null;
         }

@@ -132,15 +132,15 @@ public class HttpRequestBuilder {
         return reactiveHttpClient.observeAsString(build());
     }
 
-    public <T> T execute(Class<T> responseClass) throws IOException {
+    public <T> T execute(Class<T> responseClass) throws Throwable {
         return reactiveHttpClient.execute(build(), responseClass);
     }
 
-    public HttpResponse execute() throws IOException {
+    public HttpResponse execute() throws Throwable {
         return reactiveHttpClient.execute(build());
     }
 
-    public String executeAsString() throws IOException {
+    public String executeAsString() throws Throwable {
         return reactiveHttpClient.executeAsString(build());
     }
 

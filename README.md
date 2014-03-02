@@ -23,7 +23,7 @@ client.create()
                    public void call(Throwable throwable) {
                        if (throwable instanceof HttpResponseException) {
                            HttpResponseException hre = (HttpResponseException) throwable;
-                           GitHubError error = hre.getError(GithubApiError.class).message);
+                           GitHubError error = hre.getBodyAs(GithubApiError.class).message);
                        }
                    }
                }
@@ -106,6 +106,69 @@ String str = request.executeAsString();
 
 ```
 
+### Custom error handler
+
+```java
+
+    public class GithubApiError {
+        String message;
+    }
+
+    public class GithubException extends IOException {
+
+        private int status;
+        private GithubApiError error;
+
+        public GithubException(int status, GithubApiError error) {
+
+            this.status = status;
+            this.error = error;
+        }
+
+        public int getStatus() {
+            return status;
+        }
+
+        public GithubApiError getError() {
+            return error;
+        }
+    }
+
+    public class GithubErrorHandler implements ErrorHandler {
+
+        @Override
+        public Throwable handleError(HttpResponseException cause) {
+            GithubException ge = new GithubException(cause.getStatus(), cause.getBodyAs(GithubApiError.class));
+
+            return ge;
+        }
+    }
+
+    ReactiveHttpClient client = createClient();
+
+    client.setErrorHandler(new GithubErrorHandler());
+    client.create()
+            .get("https://api.github.com")
+            .set("Authorization", "foo")
+            .observe(Void.class)
+            .subscribe(new Action1<Void>() {
+                           @Override
+                           public void call(Void v) {
+
+                           }
+                       }, new Action1<Throwable>() {
+                           @Override
+                           public void call(Throwable e) {
+                                if (e instanceof GithubException) {
+
+                                    GithubException ge = (GithubException) e;
+                                }
+                           }
+                       }
+            );
+
+```
+
 ### Logging
 ```java
 public class ConsoleLog implements HttpLog {
@@ -132,7 +195,7 @@ ReactiveHttpClient client = new ReactiveHttpClient(new OkHttpClient(), new Gson(
 
 ### Android studio
 ```groovy
-compile 'com.lyft:reactivehttp:0.0.1'
+compile 'com.lyft:reactivehttp:0.0.x'
 ```
 
 ### Bugs and Feedback
